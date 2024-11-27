@@ -1,0 +1,11 @@
+---
+- name: Install Compute service
+  apt:
+    name: nova-compute
+    state: present
+
+- name: Ensure Compute service is running/active
+  systemd:
+    name: nova-compute
+    state: started
+    enabled: yes

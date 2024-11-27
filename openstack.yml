@@ -1,0 +1,46 @@
+---
+- name: Update repository indexes
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Update repository index of Server 1 (Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+- name: Configure and install/execute the controller role
+  hosts: all
+  become: true
+  roles:
+    - controller
+
+- name: Configure and install/execute the compute role
+  hosts: all
+  become: true
+  roles:
+    - compute
+
+- name: Configure and install/execute the database role
+  hosts: all
+  become: true
+  roles:
+    - database
+
+- name: Configure and install/execute the messagequeue role
+  hosts: all
+  become: true
+  roles:
+    - messagequeue
+
+- name: Configure and install/execute the memcached role
+  hosts: all
+  become: true
+  roles:
+    - memcached
+
+- name: Configure and install/execute the etcd role
+  hosts: all
+  become: true
+  roles:
+    - etcd

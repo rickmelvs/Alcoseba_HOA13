@@ -1,0 +1,99 @@
+---
+- name: Install NTP package
+  apt:
+    name: ntp
+    state: present
+    update_cache: yes
+
+- name: Ensure NTP service is started and enabled
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+
+- name: Install OpenStack packages on Controller node
+  apt:
+    name:
+      - python3-openstackclient
+      - keystone
+      - glance
+      - nova-api
+      - nova-scheduler
+      - nova-conductor
+      - nova-novncproxy
+      - neutron-server
+      - neutron-dhcp-agent
+      - neutron-l3-agent
+      - neutron-metadata-agent
+      - cinder-api
+      - cinder-scheduler
+      - cinder-volume
+      - heat-api
+      - heat-engine
+    state: present
+    update_cache: yes
+
+- name: Create Keystone service file
+  copy:
+    dest: /etc/systemd/system/keystone.service
+    content: |
+      [Unit]
+      Description=Keystone OpenStack Identity Service
+      After=network.target
+
+      [Service]
+      User=keystone
+      ExecStart=/usr/bin/keystone-manage serve --config-file /etc/keystone/keystone.conf
+      ExecStop=/bin/kill -TERM $MAINPID
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable Keystone service
+  service:
+    name: keystone
+    state: restarted
+
+- name: Enable Glance service
+  service:
+    name: glance-api
+    state: restarted
+
+- name: Enable Nova API service
+  service:
+    name: nova-api
+    state: restarted
+
+- name: Enable Neutron server service
+  service:
+    name: neutron-server
+    state: restarted
+
+- name: Create Cinder API service file
+  copy:
+    dest: /etc/systemd/system/cinder-api.service
+    content: |
+      [Unit]
+      Description=OpenStack Cinder API Service
+      After=network.target
+
+      [Service]
+      User=cinder
+      ExecStart=/usr/bin/cinder-api
+      ExecStop=/bin/kill -TERM $MAINPID
+      Restart=always
+      LimitNOFILE=8192
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable Cinder API service
+  service:
+    name: cinder-api
+    state: restarted
+
+- name: Enable Heat API service
+  service:
+    name: heat-api
+    state: restarted

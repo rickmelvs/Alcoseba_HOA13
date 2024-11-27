@@ -1,0 +1,25 @@
+---
+- name: Install MariaDB and Important Dependencies
+  apt:
+    name:
+      - mariadb-server
+      - python3-pymysql
+    state: present
+
+- name: Configure MariaDB for OpenStack
+  ansible.builtin.copy:
+    dest: /etc/mysql/mariadb.conf.d/99-openstack.cnf
+    content: |
+      [mysqld]
+      bind-address = 0.0.0.0
+      default-storage-engine = innodb
+      innodb_file_per_table = on
+      max_connections = 4096
+      collation-server = utf8_general_ci
+      character-set-server = utf8
+
+- name: Start and Enable MariaDB service
+  ansible.builtin.systemd:
+    name: mariadb
+    state: started
+    enabled: yes

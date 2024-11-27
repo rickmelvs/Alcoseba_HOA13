@@ -1,0 +1,21 @@
+---
+- name: Install RabbitMQ
+  apt:
+    name: rabbitmq-server
+    state: present
+
+- name: Enable RabbitMQ service
+  systemd:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- name: Add RabbitMQ user for OpenStack
+  ansible.builtin.command: rabbitmqctl list_users
+  register: rabbitmq_users
+  changed_when: false
+
+- name: Set permissions for RabbitMQ user
+  ansible.builtin.command:
+    cmd: rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+  when: "'openstack' in rabbitmq_users.stdout"
